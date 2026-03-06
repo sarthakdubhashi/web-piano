@@ -1,0 +1,162 @@
+    <!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple HTML Piano</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            block-size: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .piano {
+            display: flex;
+            position: relative; /* Required for positioning black keys */
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .key {
+            width: 60px;
+            height: 200px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 0 2px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            font-size: 14px;
+            color: #333;
+            transition: background 0.1s;
+        }
+
+        .key.black {
+            width: 40px;
+            height: 120px;
+            background-color: black;
+            position: absolute; /* Position black keys absolutely */
+            top: 0; /* Align black keys to the top */
+            z-index: 1; /* Ensure black keys are above white keys */
+            color: white;
+        }
+
+        /* Positioning for each black key */
+        .key[data-note="C#4"] { left: 62px; }
+        .key[data-note="D#4"] { left: 127px; }
+        .key[data-note="F#4"] { left: 255px; }
+        .key[data-note="G#4"] { left: 325px; }
+        .key[data-note="A#4"] { left: 395px; }
+
+        .key[data-note="C#5"] { left: 520px; }
+        .key[data-note="D#5"] { left: 580px; }
+        .key[data-note="F#5"] { left: 715px; }
+        .key[data-note="G#5"] { left: 780px; }
+        .key[data-note="A#5"] { left: 845px; }
+
+        .key:active, .key.active {
+            background-color: #ddd;
+        }
+
+        .key.black:active, .key.black.active {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body background="D:\Wallpapers\f0b6d0497e6f7b75632230ef1136e141_enhanced.jpg">
+    <div class="piano">
+        <!-- First Octave (C4 to B4) -->
+        <div class="key" data-note="C4">C4</div>
+        <div class="key black" data-note="C#4">C#4</div>
+        <div class="key" data-note="D4">D4</div>
+        <div class="key black" data-note="D#4">D#4</div>
+        <div class="key" data-note="E4">E4</div>
+        <div class="key" data-note="F4">F4</div>
+        <div class="key black" data-note="F#4">F#4</div>
+        <div class="key" data-note="G4">G4</div>
+        <div class="key black" data-note="G#4">G#4</div>
+        <div class="key" data-note="A4">A4</div>
+        <div class="key black" data-note="A#4">A#4</div>
+        <div class="key" data-note="B4">B4</div>
+
+        <!-- Second Octave (C5 to B5) -->
+        <div class="key" data-note="C5">C5</div>
+        <div class="key black" data-note="C#5">C#5</div>
+        <div class="key" data-note="D5">D5</div>
+        <div class="key black" data-note="D#5">D#5</div>
+        <div class="key" data-note="E5">E5</div>
+        <div class="key" data-note="F5">F5</div>
+        <div class="key black" data-note="F#5">F#5</div>
+        <div class="key" data-note="G5">G5</div>
+        <div class="key black" data-note="G#5">G#5</div>
+        <div class="key" data-note="A5">A5</div>
+        <div class="key black" data-note="A#5">A#5</div>
+        <div class="key" data-note="B5">B5</div>
+        <div class="key" data-note="C6">C6</div>
+    </div>
+
+    <script>
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playNote(frequency) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'triangle'; // Change to 'square', 'sawtooth', or 'triangle' , or 'sine' for different sounds
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start();
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+            oscillator.stop(audioContext.currentTime + 1);
+        }
+
+        const notes = {
+            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63,
+            'F4': 349.23, 'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00,
+            'A#4': 466.16, 'B4': 493.88, 'C5': 523.25, 'C#5': 554.37, 'D5': 587.33,
+            'D#5': 622.25, 'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99,
+            'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77, 'C6': 1046.50
+        };
+
+        const keyMap = {
+            'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
+            'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
+            'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5',
+            'p': 'D#5', ';': 'E5', "'": 'F5', ']': 'F#5', '\\': 'G5',
+            'z': 'G#5', 'x': 'A5', 'c': 'A#5', 'v': 'B5', 'b': 'C6'
+        };
+
+        document.querySelectorAll('.key').forEach(key => {
+            key.addEventListener('mousedown', () => {
+                const note = key.getAttribute('data-note');
+                playNote(notes[note]);
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            const note = keyMap[event.key];
+            if (note) {
+                playNote(notes[note]);
+
+                const keyElement = document.querySelector(`.key[data-note="${note}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                    setTimeout(() => keyElement.classList.remove('active'), 200);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
